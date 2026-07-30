@@ -1,0 +1,118 @@
+{
+  "spec_version": "0.1",
+  "generated_at": "2026-07-30T01:00:00Z",
+  "seller": {
+    "name": "Utilia",
+    "url": "https://utilia.example"
+  },
+  "protocol": "x402/v2",
+  "window": {
+    "start": "2026-07-29T01:00:00Z",
+    "end": "2026-07-30T01:00:00Z",
+    "hours": 24
+  },
+  "endpoints": [
+    {
+      "route": "/api/service",
+      "method": "POST",
+      "price_usdc": 0.002,
+      "challenges_served": 2241,
+      "challenges_abandoned": 2228,
+      "payment_attempts": 13,
+      "paid_calls": 13,
+      "unique_payers": 0,
+      "repeat_payers": 0,
+      "revenue_usdc_net_of_own_wallets": 0.026,
+      "paid_retry_failures": {
+        "total": 0,
+        "by_class": []
+      },
+      "paid_calls_by_source_class": {
+        "organic": 0,
+        "verifier": 0,
+        "prearranged": 13,
+        "self": 0,
+        "scanner": 0,
+        "unknown": 0
+      },
+      "challenges_by_source_class": {
+        "organic": 0,
+        "verifier": 0,
+        "prearranged": 13,
+        "self": 0,
+        "scanner": 0,
+        "unknown": 2228
+      },
+      "notes": "Route name illustrative, Utilia to substitute real routes. All 13 settlements came from the declared prearranged integration wallet. Organic customers: 0. Zero organic payment attempts in the window."
+    }
+  ],
+  "totals": {
+    "challenges_served": 2241,
+    "challenges_abandoned": 2228,
+    "payment_attempts": 13,
+    "paid_calls": 13,
+    "unique_payers": 0,
+    "repeat_payers": 0,
+    "revenue_usdc_net_of_own_wallets": 0.026,
+    "paid_retry_failures": {
+      "total": 0,
+      "by_class": []
+    },
+    "paid_calls_by_source_class": {
+      "organic": 0,
+      "verifier": 0,
+      "prearranged": 13,
+      "self": 0,
+      "scanner": 0,
+      "unknown": 0
+    },
+    "challenges_by_source_class": {
+      "organic": 0,
+      "verifier": 0,
+      "prearranged": 13,
+      "self": 0,
+      "scanner": 0,
+      "unknown": 2228
+    },
+    "abandonment_causes": {
+      "funding": 0,
+      "policy": 0,
+      "retry_handling": 0,
+      "receipt_handling": 0,
+      "unknown": 2228
+    }
+  },
+  "declared_exclusions": [
+    {
+      "address": "0x1111111111111111111111111111111111111111",
+      "source_class": "prearranged",
+      "evidence": "Placeholder address, Utilia to substitute the real wallet before publishing. Known prearranged integration wallet, source of all 13 settlements in this window.",
+      "label": "integration wallet"
+    },
+    {
+      "address": "0x2222222222222222222222222222222222222222",
+      "source_class": "self",
+      "evidence": "Placeholder address, Utilia to substitute. D0xed test fixture, seller controlled.",
+      "label": "D0xed"
+    },
+    {
+      "address": "0x3333333333333333333333333333333333333333",
+      "source_class": "self",
+      "evidence": "Placeholder address, Utilia to substitute. Agent402 test fixture, seller controlled.",
+      "label": "Agent402"
+    }
+  ],
+  "receipt_linkage": {
+    "address": "0x4444444444444444444444444444444444444444",
+    "chain": "eip155:8453",
+    "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "block_range": {
+      "from": 48840000,
+      "to": 48885000
+    }
+  },
+  "notes": "Receiving address, chain, and block range are placeholders for Utilia to fill with wallet provenance as they committed publicly. Their published read on the abandonment: discovery works, buyer runtimes stop before sign plus retry. That evidence is per-runtime and not per-challenge, so abandonment_causes stays unknown rather than guessed.",
+  "extensions": {
+    "total_requests": 10998
+  }
+}

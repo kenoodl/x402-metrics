@@ -1,0 +1,168 @@
+{
+  "spec_version": "0.1",
+  "generated_at": "2026-07-30T14:00:00Z",
+  "seller": {
+    "name": "kenoodl",
+    "url": "https://kenoodl.com"
+  },
+  "protocol": "x402/v2",
+  "window": {
+    "start": "2026-06-30T00:00:00Z",
+    "end": "2026-07-30T00:00:00Z",
+    "hours": 720
+  },
+  "endpoints": [
+    {
+      "route": "/api/verify",
+      "method": "POST",
+      "price_usdc": 0.1,
+      "challenges_served": 37,
+      "challenges_abandoned": null,
+      "paid_calls": 2,
+      "unique_payers": 2,
+      "repeat_payers": 0,
+      "revenue_usdc_net_of_own_wallets": 1.001,
+      "paid_retry_failures": {
+        "total": 0,
+        "by_class": []
+      },
+      "paid_calls_by_source_class": {
+        "organic": 2,
+        "verifier": 0,
+        "prearranged": 0,
+        "self": 0,
+        "scanner": 0,
+        "unknown": 0
+      },
+      "notes": "challenges_served is third-party attributed (agentic.market API, l30DaysTotalCalls), not kenoodl's own logged count. Both settlements predate the Jul 27 price correction: Jul 9 settled at a legacy 1.00 USDC, and Jul 17 settled at 0.001 USDC, which was a pricing defect that charged a tenth of a cent while the door advertised ten cents. Price is now 0.10 and confirmed on chain."
+    },
+    {
+      "route": "/preflight",
+      "method": "POST",
+      "price_usdc": 0.01,
+      "challenges_served": 7,
+      "challenges_abandoned": null,
+      "paid_calls": 2,
+      "unique_payers": 2,
+      "repeat_payers": 0,
+      "revenue_usdc_net_of_own_wallets": 0.02,
+      "paid_retry_failures": {
+        "total": 0,
+        "by_class": []
+      },
+      "paid_calls_by_source_class": {
+        "organic": 2,
+        "verifier": 0,
+        "prearranged": 0,
+        "self": 0,
+        "scanner": 0,
+        "unknown": 0
+      },
+      "notes": "Route attribution is inferred from the settled amount, not from a payment id bound to the request. kenoodl cannot currently tie a settlement to the exact route that produced it, and reports the inference rather than presenting it as measured."
+    }
+  ],
+  "totals": {
+    "challenges_served": 44,
+    "challenges_abandoned": null,
+    "paid_calls": 4,
+    "unique_payers": 4,
+    "repeat_payers": 0,
+    "revenue_usdc_net_of_own_wallets": 1.021,
+    "paid_retry_failures": {
+      "total": 0,
+      "by_class": []
+    },
+    "paid_calls_by_source_class": {
+      "organic": 4,
+      "verifier": 0,
+      "prearranged": 0,
+      "self": 0,
+      "scanner": 0,
+      "unknown": 0
+    }
+  },
+  "declared_exclusions": [
+    {
+      "address": "0x99fCE493DED78e271243F17C385800D6686D238D",
+      "source_class": "self",
+      "evidence": "kenoodl-controlled burn wallet, labelled DOOR8_SELLER, hardcoded as the payer in five kenoodl test scripts under kenoodl-verify-action/ and confirmed kenoodl-controlled Jul 1 2026. It sent 44 settlements totalling 19.619 USDC to the receiving address inside this window, roughly nineteen times all real outside revenue.",
+      "label": "burn wallet / DOOR8_SELLER"
+    },
+    {
+      "address": "0x6fcde1BbCB6e25a4fF8A1aaB9553CB6b6f59D4c6",
+      "source_class": "self",
+      "evidence": "kenoodl's own agent wallet, published at k-base /health. 7 settlements totalling 0.070 USDC inside this window. Once mistaken for a repeat customer before the address was checked, which is why this field exists in the spec.",
+      "label": "k_wallet"
+    },
+    {
+      "address": "0x3A7292b88471691946D8D8856925e22246bed743",
+      "source_class": "self",
+      "evidence": "The receiving address itself, which also appears as CR_WALLET in api/src/worker.js. Self-transfers are excluded.",
+      "label": "receiving address / CR"
+    },
+    {
+      "address": "0x99fc17d43c890fb2d3079406007dc8ac5a15338d",
+      "source_class": "scanner",
+      "evidence": "Address-poisoning dust. Shares the first four and last four hex characters with kenoodl's burn wallet 0x99fCE493...238D, the signature of an address seeded into transaction history so an operator copying from a block explorer copies the attacker's instead. 5 transfers totalling 0.00018 USDC. Not revenue.",
+      "label": "poison lookalike"
+    },
+    {
+      "address": "0x99fc0b8ca7b0a1cd7d2510219cb3a68aa5c8238d",
+      "source_class": "scanner",
+      "evidence": "Address-poisoning dust, same 0x99fc...238d lookalike pattern. 1 transfer of 0.00004 USDC.",
+      "label": "poison lookalike"
+    },
+    {
+      "address": "0x99f778e200a0693d974fa7408ba7c50ec5fd238d",
+      "source_class": "scanner",
+      "evidence": "Address-poisoning dust, same 0x99fc...238d lookalike pattern. 1 transfer of 0.00015 USDC.",
+      "label": "poison lookalike"
+    }
+  ],
+  "receipt_linkage": {
+    "address": "0x3A7292b88471691946D8D8856925e22246bed743",
+    "chain": "eip155:8453",
+    "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "block_range": {
+      "from": 48051348,
+      "to": 49193126
+    },
+    "settlement_tx_hashes": [
+      "0xced4432d92bb4cdff055c175a23f95429d85e19566b8a410afb6b90de850825a",
+      "0x0cfa93eb0d0fa4d4a84ff0b3e5f761e379f51b9a260d2ab25e83d506d05d4dce",
+      "0xb728d8f7128636b8dcf296fe5ba4816bc865113cece132fed7ebdf51e3a8bd36",
+      "0xed6b4192771952efbd6b486d306aca4e3f039b27bb645bde9017f5ed7887af08"
+    ]
+  },
+  "notes": "Every settled figure was rebuilt from Base chain data, not from kenoodl's internal ledger, because the internal ledger was found to be wrong: its settlement logger credited a flat 1.00 USDC per sale regardless of the amount actually collected. Reproduce this report by reading inbound USDC transfers to the receiving address across the stated block range and applying the declared exclusions. challenges_abandoned is null on every row because kenoodl cannot currently bind a 402 challenge to a later payment attempt from the same client, and a guess would defeat the purpose of the field. Not featured on agentic.market, listing 185 of 1,966.",
+  "extensions": {
+    "lifetime_inbound_usdc": {
+      "note": "Full history of the receiving address, inbound USDC only. The address also holds unsolicited memecoin transfers from an earlier era, which are ignored.",
+      "transfers_total": 94,
+      "from_own_wallets": {
+        "transfers": 61,
+        "usdc": 20.774
+      },
+      "from_outside": {
+        "transfers": 33,
+        "usdc": 14.014
+      }
+    },
+    "pre_product_cluster": {
+      "note": "Between Apr 13 and Apr 22 2026, three outside addresses sent 10 transfers totalling 12.88 USDC in irregular amounts on a roughly two-hour cadence. This predates verify existing as a product and does not resemble per-call purchasing. Disclosed rather than dropped, and deliberately excluded from the window above. Ownership of these addresses is unresolved.",
+      "addresses": [
+        "0xd0b53d9277642d899df5c87a3966a349a798f224",
+        "0xcdac0d6c6c59727a65f871236188350531885c43",
+        "0x344ff535abf7d7b044ed5153d82e2d3fd2ea60c8"
+      ],
+      "transfers": 10,
+      "usdc": 12.88
+    },
+    "self_testing_ratio": {
+      "note": "Inside this window kenoodl paid its own door 51 times for 19.689 USDC while collecting 1.021 USDC from four outside wallets. Self-testing exceeded real revenue by about nineteen to one. Published because a report that hides this is not worth reading.",
+      "self_settlements": 51,
+      "self_usdc": 19.689,
+      "outside_usdc": 1.021
+    }
+  }
+}
