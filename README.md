@@ -113,3 +113,49 @@ Zero dependencies, Node 18+. Exits non-zero on failure and names the offending f
 ## Versioning
 
 `spec_version` is required in every document. v0.x may change field semantics between minors. From 1.0, fields are only added, never renamed or removed, and additions land in `extensions` first.
+
+## challenge_correlation (added Jul 30 2026)
+
+`challenges_abandoned` is the gap between "was served a 402" and "attempted to
+pay." It is the largest unmeasured number on this rail, and computing it means
+linking a challenge to the payment attempt that followed it.
+
+The obvious way to link them is IP or user-agent. That is both privacy hostile
+and unreliable, so this spec does not permit it.
+
+The correlation key sellers already have is the EIP-3009 authorization nonce,
+and it does not work here. The buyer generates it at signing time, so on an
+unpaid challenge there is nothing to record. It cannot reach backward to a
+challenge that was served before the buyer decided to pay.
+
+`quote_id`, proposed by Utilia (@utiliax402), fixes that. The seller issues an
+opaque single-use token in the 402. The buyer echoes it on the retry. It
+correlates without identifying, because it is derived from nothing about the
+client.
+
+```json
+"challenge_correlation": {
+  "method": "quote_id",
+  "quote_id_issued": 2241,
+  "quote_id_returned": 13,
+  "median_seconds_challenge_to_attempt": 4.2
+}
+```
+
+`method` is REQUIRED when the block is present, and is either `quote_id` or
+`none`. The rest are OPTIONAL.
+
+Two rules the validator enforces. If `method` is `none`, `challenges_abandoned`
+must be null, because without a token that number is a guess. And
+`quote_id_returned` cannot exceed `quote_id_issued`.
+
+`median_seconds_challenge_to_attempt` comes free once both timestamps exist and
+it is worth reporting on its own. A short median with a low attempt rate points
+at buyer runtimes failing fast. A long one points at policy or human approval
+gates. Those are different problems with different fixes.
+
+**This is the only part of the spec that requires buyer cooperation.** Every
+other field a seller can fill alone. A seller can issue `quote_id` today, but it
+stays unreturned until buyer runtimes echo it, so expect these to read null for
+a while. The field is here so the schema is waiting when they arrive, rather
+than the other way around.

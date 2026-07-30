@@ -34,6 +34,27 @@ const isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 const isCount = (v) => Number.isInteger(v) && v >= 0;
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 
+
+// challenge_correlation: optional, but if present it must be coherent, and it is
+// the only field that can justify a non-null challenges_abandoned.
+function checkCorrelation(m, path) {
+  const c = m?.challenge_correlation;
+  if (c === undefined) {
+    if (m?.challenges_abandoned !== null && m?.challenges_abandoned !== undefined)
+      warn(`${path}.challenges_abandoned`, `reported without challenge_correlation. Say how the challenge was linked to the attempt, or report null. Inferring from IP or user-agent is not linking.`);
+    return;
+  }
+  if (typeof c !== "object" || c === null || Array.isArray(c))
+    return err(`${path}.challenge_correlation`, `must be an object`);
+  checkKeys(c, `${path}.challenge_correlation`, ["method", "quote_id_issued", "quote_id_returned", "median_seconds_challenge_to_attempt"]);
+  if (!["quote_id", "none"].includes(c.method))
+    err(`${path}.challenge_correlation.method`, `must be "quote_id" or "none", got ${JSON.stringify(c.method)}`);
+  if (c.method === "none" && m?.challenges_abandoned !== null && m?.challenges_abandoned !== undefined)
+    err(`${path}.challenges_abandoned`, `must be null when challenge_correlation.method is "none". Without a correlation token this number is a guess.`);
+  if (Number.isInteger(c.quote_id_issued) && Number.isInteger(c.quote_id_returned) && c.quote_id_returned > c.quote_id_issued)
+    err(`${path}.challenge_correlation.quote_id_returned`, `${c.quote_id_returned} exceeds quote_id_issued (${c.quote_id_issued}), a token cannot come back more often than it went out`);
+}
+
 function checkKeys(obj, path, allowed) {
   for (const k of Object.keys(obj)) {
     if (!allowed.includes(k)) err(`${path}.${k}`, `unknown field, not in spec v${SPEC_VERSION}. Extra data belongs under "extensions".`);
@@ -143,6 +164,7 @@ const METRIC_FIELDS = [
   "paid_calls_by_source_class",
   "challenges_by_source_class",
   "abandonment_causes",
+  "challenge_correlation",
 ];
 
 function checkMetrics(obj, path, { requirePaidBreakdown }) {
@@ -325,6 +347,7 @@ async function main() {
       const p = `$.endpoints[${i}]`;
       if (!isObj(ep)) return err(p, "must be an object");
       checkKeys(ep, p, ["route", "method", "price_usdc", "notes", ...METRIC_FIELDS]);
+    checkCorrelation(ep, p);
       if (typeof ep.route !== "string" || !ep.route.startsWith("/")) {
         err(`${p}.route`, `required string starting with "/", got ${JSON.stringify(ep.route)}`);
       }
@@ -344,6 +367,7 @@ async function main() {
     err("$.totals", "required object with seller-level totals");
   } else {
     checkKeys(doc.totals, "$.totals", METRIC_FIELDS);
+  checkCorrelation(doc.totals, "$.totals");
     const t = checkMetrics(doc.totals, "$.totals", { requirePaidBreakdown: true });
     if (rows.length > 0) {
       for (const [field, key] of [["challenges_served", "challenges_served"], ["paid_calls", "paid_calls"]]) {

@@ -326,6 +326,40 @@
         "challenges_by_source_class": {
           "$ref": "#/$defs/source_class_breakdown",
           "description": "OPTIONAL. challenges_served split by source_class. Must sum to challenges_served. Report it if you can: the distribution usually differs sharply from the paid distribution, and that difference is itself the finding."
+        },
+        "challenge_correlation": {
+          "type": "object",
+          "description": "OPTIONAL. How this seller links a 402 challenge to the payment attempt that followed it, so challenges_abandoned can be computed without treating IP or user-agent as identity. Proposed by Utilia (@utiliax402). NOTE: this is the only part of the spec that requires buyer cooperation. A seller can issue quote_id alone, but the buyer runtime must echo it on the paid retry, so expect these to read null until buyer runtimes adopt it.",
+          "additionalProperties": false,
+          "properties": {
+            "method": {
+              "type": "string",
+              "enum": [
+                "quote_id",
+                "none"
+              ],
+              "description": "quote_id: the seller issues an opaque single-use token in the 402 and the buyer echoes it on the retry. none: this seller cannot correlate, and challenges_abandoned must be null."
+            },
+            "quote_id_issued": {
+              "$ref": "#/$defs/count",
+              "description": "OPTIONAL. Challenges served carrying a quote_id."
+            },
+            "quote_id_returned": {
+              "$ref": "#/$defs/count",
+              "description": "OPTIONAL. Payment attempts that echoed a quote_id back. quote_id_issued minus quote_id_returned is the abandonment, measured rather than inferred."
+            },
+            "median_seconds_challenge_to_attempt": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "description": "OPTIONAL. Median seconds from challenge_issued_at to paid_retry_at. A short median with a low attempt rate points at buyer runtimes failing fast. A long one points at policy or human approval gates. Different problems, different fixes."
+            }
+          },
+          "required": [
+            "method"
+          ]
         }
       }
     },
