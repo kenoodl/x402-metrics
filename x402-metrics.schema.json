@@ -329,32 +329,58 @@
         },
         "challenge_correlation": {
           "type": "object",
-          "description": "OPTIONAL. How this seller links a 402 challenge to the payment attempt that followed it, so challenges_abandoned can be computed without treating IP or user-agent as identity. Proposed by Utilia (@utiliax402). NOTE: this is the only part of the spec that requires buyer cooperation. A seller can issue quote_id alone, but the buyer runtime must echo it on the paid retry, so expect these to read null until buyer runtimes adopt it.",
+          "description": "OPTIONAL. How this seller links a 402 challenge to the payment attempt that followed it, so challenges_abandoned can be computed without treating IP or user-agent as identity. Proposed by Utilia (@utiliax402). NOTE: this is the only part of the spec that requires buyer cooperation. A seller can issue the token alone, but the buyer runtime must echo it on the paid retry, so treat echo support as an explicit buyer-runtime capability and report null when unsupported.",
           "additionalProperties": false,
           "properties": {
             "method": {
               "type": "string",
               "enum": [
-                "quote_id",
+                "seller_quote_id",
                 "none"
               ],
-              "description": "quote_id: the seller issues an opaque single-use token in the 402 and the buyer echoes it on the retry. none: this seller cannot correlate, and challenges_abandoned must be null."
+              "description": "seller_quote_id: the SELLER issues an opaque single-use token in the 402 and the buyer echoes it on the retry. Named for who issues it, because a token derived from anything about the buyer would identify rather than correlate. none: this seller cannot correlate, and challenges_abandoned MUST be null."
             },
             "quote_id_issued": {
               "$ref": "#/$defs/count",
-              "description": "OPTIONAL. Challenges served carrying a quote_id."
+              "description": "OPTIONAL. Challenges served carrying a seller_quote_id."
             },
             "quote_id_returned": {
               "$ref": "#/$defs/count",
-              "description": "OPTIONAL. Payment attempts that echoed a quote_id back. quote_id_issued minus quote_id_returned is the abandonment, measured rather than inferred."
+              "description": "OPTIONAL. Payment attempts that echoed the token back. issued minus returned is the abandonment, measured rather than inferred."
             },
-            "median_seconds_challenge_to_attempt": {
-              "type": [
-                "number",
-                "null"
-              ],
-              "minimum": 0,
-              "description": "OPTIONAL. Median seconds from challenge_issued_at to paid_retry_at. A short median with a low attempt rate points at buyer runtimes failing fast. A long one points at policy or human approval gates. Different problems, different fixes."
+            "challenge_to_paid_retry_ms": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "OPTIONAL, and only meaningful when BOTH timestamps exist. Milliseconds from challenge_issued_at to paid_retry_at. Reported as an aggregate because a monthly report has many samples: a bare number would be ambiguous. median alone hides the story, so p90 is included. A median of 4s with a p90 of 4s means buyer runtimes fail fast. A median of 4s with a p90 of six hours means some calls go to a human approval gate. Different problems, different fixes.",
+              "properties": {
+                "median": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "description": "REQUIRED when the object is present."
+                },
+                "p90": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "description": "OPTIONAL but strongly encouraged."
+                },
+                "samples": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "description": "OPTIONAL. How many pairs the aggregate is over."
+                }
+              },
+              "required": [
+                "median"
+              ]
             }
           },
           "required": [

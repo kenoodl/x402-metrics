@@ -128,31 +128,40 @@ and it does not work here. The buyer generates it at signing time, so on an
 unpaid challenge there is nothing to record. It cannot reach backward to a
 challenge that was served before the buyer decided to pay.
 
-`quote_id`, proposed by Utilia (@utiliax402), fixes that. The seller issues an
+`seller_quote_id`, proposed by Utilia (@utiliax402), fixes that. The name says who issues it, because a token derived from anything about the buyer would identify rather than correlate. The seller issues an
 opaque single-use token in the 402. The buyer echoes it on the retry. It
 correlates without identifying, because it is derived from nothing about the
 client.
 
 ```json
 "challenge_correlation": {
-  "method": "quote_id",
+  "method": "seller_quote_id",
   "quote_id_issued": 2241,
   "quote_id_returned": 13,
-  "median_seconds_challenge_to_attempt": 4.2
+  "challenge_to_paid_retry_ms": { "median": 4200, "p90": 21600000, "samples": 13 }
 }
 ```
 
-`method` is REQUIRED when the block is present, and is either `quote_id` or
+`method` is REQUIRED when the block is present, and is either `seller_quote_id` or
 `none`. The rest are OPTIONAL.
 
 Two rules the validator enforces. If `method` is `none`, `challenges_abandoned`
 must be null, because without a token that number is a guess. And
 `quote_id_returned` cannot exceed `quote_id_issued`.
 
-`median_seconds_challenge_to_attempt` comes free once both timestamps exist and
-it is worth reporting on its own. A short median with a low attempt rate points
-at buyer runtimes failing fast. A long one points at policy or human approval
-gates. Those are different problems with different fixes.
+`challenge_to_paid_retry_ms` comes free once both timestamps exist, and only
+then. It is an OBJECT, not a bare number, because a monthly report has many
+samples and a single figure would be ambiguous about what it measures.
+
+`median` alone hides the story, which is why `p90` is strongly encouraged. A
+median of 4 seconds with a p90 of 4 seconds means buyer runtimes are failing
+fast. A median of 4 seconds with a p90 of six hours means some calls are sitting
+in a human approval gate. Those look identical on the median and need opposite
+fixes.
+
+The validator rejects a p90 below the median, and rejects any timing at all when
+`method` is `none`, because without a token there are no paired timestamps to
+measure.
 
 **This is the only part of the spec that requires buyer cooperation.** Every
 other field a seller can fill alone. A seller can issue `quote_id` today, but it

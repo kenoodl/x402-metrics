@@ -46,11 +46,24 @@ function checkCorrelation(m, path) {
   }
   if (typeof c !== "object" || c === null || Array.isArray(c))
     return err(`${path}.challenge_correlation`, `must be an object`);
-  checkKeys(c, `${path}.challenge_correlation`, ["method", "quote_id_issued", "quote_id_returned", "median_seconds_challenge_to_attempt"]);
-  if (!["quote_id", "none"].includes(c.method))
-    err(`${path}.challenge_correlation.method`, `must be "quote_id" or "none", got ${JSON.stringify(c.method)}`);
+  checkKeys(c, `${path}.challenge_correlation`, ["method", "quote_id_issued", "quote_id_returned", "challenge_to_paid_retry_ms"]);
+  if (!["seller_quote_id", "none"].includes(c.method))
+    err(`${path}.challenge_correlation.method`, `must be "seller_quote_id" or "none", got ${JSON.stringify(c.method)}`);
   if (c.method === "none" && m?.challenges_abandoned !== null && m?.challenges_abandoned !== undefined)
     err(`${path}.challenges_abandoned`, `must be null when challenge_correlation.method is "none". Without a correlation token this number is a guess.`);
+  const L = c.challenge_to_paid_retry_ms;
+  if (L !== undefined) {
+    if (typeof L !== "object" || L === null || Array.isArray(L))
+      err(`${path}.challenge_correlation.challenge_to_paid_retry_ms`, `must be an object with a median, not a bare number: a monthly report has many samples`);
+    else {
+      checkKeys(L, `${path}.challenge_correlation.challenge_to_paid_retry_ms`, ["median", "p90", "samples"]);
+      if (L.median === undefined) err(`${path}.challenge_correlation.challenge_to_paid_retry_ms.median`, `required when the object is present`);
+      if (Number.isInteger(L.median) && Number.isInteger(L.p90) && L.p90 < L.median)
+        err(`${path}.challenge_correlation.challenge_to_paid_retry_ms.p90`, `${L.p90} is below the median (${L.median}), a 90th percentile cannot sit under the 50th`);
+      if (c.method === "none" && (L.median !== null && L.median !== undefined))
+        err(`${path}.challenge_correlation.challenge_to_paid_retry_ms`, `cannot be reported when method is "none": without a token there are no paired timestamps`);
+    }
+  }
   if (Number.isInteger(c.quote_id_issued) && Number.isInteger(c.quote_id_returned) && c.quote_id_returned > c.quote_id_issued)
     err(`${path}.challenge_correlation.quote_id_returned`, `${c.quote_id_returned} exceeds quote_id_issued (${c.quote_id_issued}), a token cannot come back more often than it went out`);
 }
